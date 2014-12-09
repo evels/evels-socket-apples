@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>Apples to Apples</title>
+        <script type="text/javascript" src="js/vendor/jquery.js"></script>
+        <script type="text/javascript" src="js/vendor/socket.io-1.2.0.js"></script>
+        <script type="text/javascript" src="js/script.js"></script>
+        <link href="style.css" rel="stylesheet" media="screen">
+    </head>
+    <body>
+        <h2>Apples to Apples</h2>
+
+        <div class="game-enter">
+            <form class="player-enter" method="get" action="">
+                <label for="player-name">What is your name?</label>
+                <input id="player-name" name="player-name" type="text">
+                <input type="submit" value="Submit">
+            </form>
+            <button class="game-begin">Begin Game</button>
+            <span class="error"></span>
+        </div>
+        <div class="dealer">
+        </div>
+        <div class="player">
+            
+        </div>
+        <div class="players-list">
+            <b>Current Players</b>
+            <div id="users"></div>
+        </div>
+        <div class="players-log">
+            <div id="conversation"></div>
+            <input id="data" style="width:200px;" />
+            <input type="button" id="datasend" value="send" />
+        </div>
+
+        
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
