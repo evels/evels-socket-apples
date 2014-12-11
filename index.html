@@ -6,31 +6,37 @@
         <script type="text/javascript" src="js/vendor/jquery.js"></script>
         <script type="text/javascript" src="js/vendor/socket.io-1.2.0.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Slabo+27px' rel='stylesheet' type='text/css'>
         <link href="style.css" rel="stylesheet" media="screen">
     </head>
     <body>
-        <h2>Apples to Apples</h2>
+        <h1>Apples to Apples</h1>
 
         <div class="game-enter">
+
             <form class="player-enter" method="get" action="">
-                <label for="player-name">What is your name?</label>
+                <label for="player-name">Hello! Welcome to the game! <br/>What is your name?</label>
                 <input id="player-name" name="player-name" type="text">
                 <input type="submit" value="Submit">
             </form>
-            <button class="game-begin">Begin Game</button>
+	    <span class="game-waiting hide">Waiting for more players...</span>
+            <button class="game-begin hide">Begin Game</button>
             <span class="error"></span>
         </div>
-        <div class="dealer">
+        <div class="deal hide">
+	    <div class="deal-info">
+		Turn:<span></span>
+	    </div>
+	    <div class="deal-green">
+	    </div>
+	    <div class="deal-red">
+	    </div>
         </div>
         <div class="player">
-
         </div>
         <div class="players-list">
-            <b>Current Players</b>
-            <div id="users"></div>
-        </div>
-        <div class="players-log">
-            <div id="conversation"></div>
+            <h3>Current Players</h3>
+            <div id="users">No current players</div>
         </div>
     </body>
 </html>
