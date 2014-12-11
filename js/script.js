@@ -47,8 +47,8 @@ $(document).ready(function() {
 
 		).then(function() {
 
-		newRound();
-
+		socket.emit('loadcards', redCards, greenCards);
+		socket.emit('newround');
 	    });
 	}
     });
@@ -58,7 +58,7 @@ socket.on('dealgreen', function(card) {
     $('.dealer').text(card);
 });
 
-// on connection to server, ask for user's name with an anonymous callback
+// on connection to server
 socket.on('connect', function(){
 
     });
@@ -74,17 +74,13 @@ socket.on('updateusers', function(data) {
     usernames = data;
     $('#users').empty();
     $.each(data, function(key, value) {
-	$('#users').append('<div>' + key + '</div>');
+	$('#users').append('<div>' + key+ value + '</div>');
     });
 });
 
-socket.on('updatecarddata', function(red, green) {
-    redCards = red;
-    greenCards = green;
-});
 
-socket.on('dealred', function() {
-    dealHand();
+socket.on('dealred', function(card) {
+    $('.player').append(card);
 });
 
 
@@ -92,32 +88,3 @@ socket.on('dealred', function() {
 $(function(){
 
     });
-
-
-
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-function getCard(cards) {
-    var random = getRandomInt(0, cards.length);
-    if (cards[random].used == true) {
-	getCard(cards);
-    }
-    cards[random].used = true;
-    return cards[random].key;
-}
-
-function newRound() {
-    var newGreen = getCard(greenCards);
-    socket.emit('updatecarddata', redCards, greenCards);
-    socket.emit('dealgreen', newGreen);
-    socket.emit('dealred');
-}
-
-function dealHand() {
-    for(var c = 0; c < 1; c++) {
-	$('.player').append(getCard(redCards));
-    }
-    socket.emit('updatecarddata', redCards, greenCards);
-}

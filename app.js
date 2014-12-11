@@ -19,9 +19,10 @@ app.get('/', function (req, res) {
 
 // usernames which are currently connected to the chat
 var usernames = {};
+var redcards = [];
+var greencards = [];
 
 io.sockets.on('connection', function (socket) {
-
 
     // when the client emits 'sendchat', this listens and executes
     //socket.on('sendchat', function (data) {
@@ -35,8 +36,7 @@ io.sockets.on('connection', function (socket) {
 	// we store the username in the socket session for this client
 	socket.username = username;
 	// add the client's username to the global list
-	usernames[username] = username;
-	usernames[id] = Object.key(usernames).length;
+	usernames[socket.id] = username;
 	// echo to client they've connected
 	socket.emit('updatechat', 'SERVER', 'you have connected');
 	// echo globally (all clients) that a person has connected
@@ -57,18 +57,36 @@ io.sockets.on('connection', function (socket) {
     });
 
     //update card data for every user
-    socket.on('updatecarddata', function(red, green) {
+    socket.on('loadcards', function(red, green) {
 	console.log('update card data');
-	io.sockets.emit('updatecarddata', red, green);
+	redcards = red;
+	greencards = green;
+	console.log(redcards);
+	console.log(greencards);
     });
 
-    socket.on('dealgreen', function(card) {
-	console.log('deal green');
-	io.sockets.emit('dealgreen', card);
+    socket.on('newround', function() {
+	for (var user in usernames) {
+	    if (usernames.hasOwnProperty(user)) {
+		console.log('dealing hand for '+user);
+		for(var c = 0; c < 3; c++) {
+		    io.to(user).emit('dealred', getCard(redcards));
+		}
+	    }
+	}
+	console.log(redcards);
     });
-
-    socket.on('dealred', function() {
-	console.log('deal red for '+socket.username);
-	io.sockets.emit('dealred');
-    })
 });
+
+
+function getCard(cards) {
+    var random = getRandomInt(0, cards.length);
+    if (cards[random].used == true) {
+	getCard(cards);
+    }
+    cards[random].used = true;
+    return cards[random].key;
+}
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
