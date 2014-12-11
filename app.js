@@ -21,9 +21,10 @@ app.get('/', function (req, res) {
 var usernames = {};
 var redcards = [];
 var greencards = [];
+var currentturn = -1;
+var users = [];
 
 io.sockets.on('connection', function (socket) {
-
     // when the client emits 'sendchat', this listens and executes
     //socket.on('sendchat', function (data) {
     // we tell the client to execute 'updatechat' with 2 parameters
@@ -36,6 +37,7 @@ io.sockets.on('connection', function (socket) {
 	// we store the username in the socket session for this client
 	socket.username = username;
 	// add the client's username to the global list
+	users[Object.keys(usernames).length] = socket.id;
 	usernames[socket.id] = username;
 	// echo to client they've connected
 	socket.emit('updatechat', 'SERVER', 'you have connected');
@@ -49,7 +51,7 @@ io.sockets.on('connection', function (socket) {
     // when the user disconnects.. perform this
     socket.on('disconnect', function(){
 	// remove the username from global usernames list
-	delete usernames[socket.username];
+	delete usernames[socket.id];
 	// update list of users in chat, client-side
 	io.sockets.emit('updateusers', usernames);
 	// echo globally that this client has left
@@ -61,20 +63,23 @@ io.sockets.on('connection', function (socket) {
 	console.log('update card data');
 	redcards = red;
 	greencards = green;
-	console.log(redcards);
-	console.log(greencards);
     });
 
     socket.on('newround', function() {
+	currentturn++;
 	for (var user in usernames) {
 	    if (usernames.hasOwnProperty(user)) {
 		console.log('dealing hand for '+user);
 		for(var c = 0; c < 3; c++) {
 		    io.to(user).emit('dealred', getCard(redcards));
+		    console.log('deal one card');
+		}
+		if(users[currentturn] == user) {
+		    io.to(user).emit('yourturn');
 		}
 	    }
 	}
-	console.log(redcards);
+	io.sockets.emit('dealgreen', getCard(greencards));
     });
 });
 

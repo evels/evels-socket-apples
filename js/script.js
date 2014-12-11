@@ -1,5 +1,3 @@
-var redCards = [];
-var greenCards = [];
 var usernames = {};
 var socket = io.connect('http://localhost:8080');
 
@@ -24,6 +22,8 @@ $(document).ready(function() {
 	    $('.game-enter .error').text("You must have more players!");
 	}
 	else {
+	    var redCards = [];
+	    var greenCards = [];
 	    $.when(
 		// load cards
 		$.get('redcards.txt', function(txtFile){
@@ -58,6 +58,10 @@ socket.on('dealgreen', function(card) {
     $('.dealer').text(card);
 });
 
+socket.on('yourturn', function() {
+   $('.player').css('border','1px solid green');
+});
+
 // on connection to server
 socket.on('connect', function(){
 
@@ -80,6 +84,7 @@ socket.on('updateusers', function(data) {
 
 
 socket.on('dealred', function(card) {
+    console.log(card);
     $('.player').append(card);
 });
 
@@ -88,3 +93,7 @@ socket.on('dealred', function(card) {
 $(function(){
 
     });
+
+
+
+
