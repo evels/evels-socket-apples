@@ -1,0 +1,16 @@
+body {
+   font-family: 'Slabo 27px', serif;
+   background:url('images/bg.jpg') no-repeat 30% 75%;
+   margin:20px;
+}
+label {
+    display:block;
+}
+
+.hide {
+    display:none;
+}
+
+.game-enter {
+    margin-bottom:20px;
+}
