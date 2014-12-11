@@ -1,7 +1,7 @@
 body {
-   font-family: 'Slabo 27px', serif;
-   background:url('images/bg.jpg') no-repeat 30% 75%;
-   margin:20px;
+    font-family: 'Slabo 27px', serif;
+    background:url('images/bg.jpg') no-repeat 30% 75%;
+    margin:20px;
 }
 label {
     display:block;
@@ -13,4 +13,35 @@ label {
 
 .game-enter {
     margin-bottom:20px;
+}
+
+.card {
+    border:1px solid gray;
+}
+
+.card.green {
+    width:200px;
+    height:300px;
+
+}
+.card.red {
+    width:150px;
+    height:250px;
+}
+
+.card span {
+    display: block;
+    font-size: 20px;
+    left: -72px;
+    position: relative;
+    text-align: right;
+    top: 100px;
+    transform: rotate(-90deg);
+    width: 200px;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+}
+
+.card.green span {
+    font-size:30px;
 }
