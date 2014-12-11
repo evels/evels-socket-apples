@@ -36,6 +36,7 @@ io.sockets.on('connection', function (socket) {
 	socket.username = username;
 	// add the client's username to the global list
 	usernames[username] = username;
+	usernames[id] = Object.key(usernames).length;
 	// echo to client they've connected
 	socket.emit('updatechat', 'SERVER', 'you have connected');
 	// echo globally (all clients) that a person has connected
@@ -57,7 +58,17 @@ io.sockets.on('connection', function (socket) {
 
     //update card data for every user
     socket.on('updatecarddata', function(red, green) {
+	console.log('update card data');
 	io.sockets.emit('updatecarddata', red, green);
     });
 
+    socket.on('dealgreen', function(card) {
+	console.log('deal green');
+	io.sockets.emit('dealgreen', card);
+    });
+
+    socket.on('dealred', function() {
+	console.log('deal red for '+socket.username);
+	io.sockets.emit('dealred');
+    })
 });
