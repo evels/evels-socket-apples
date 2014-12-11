@@ -4,12 +4,13 @@ var socket = io.connect('http://localhost:8080');
 
 $(document).ready(function() {
 
-
-
     //getting player name
     $('.player-enter').submit(function(event) {
 	event.preventDefault();
 	var name = $('#player-name').val();
+	if(name == "") {
+	    name = "[no name]";
+	}
 	socket.emit('adduser', name);
 	$(this).fadeOut();
 	return;
@@ -47,7 +48,7 @@ $(document).ready(function() {
 
 		).then(function() {
 
-		socket.emit('loadcards', redCards, greenCards);
+		socket.emit('initgame', redCards, greenCards);
 		socket.emit('newround');
 	    });
 	}
@@ -55,11 +56,25 @@ $(document).ready(function() {
 });
 
 socket.on('dealgreen', function(card) {
-    $('.dealer').text(card);
+    $('.deal-green').html(drawCard(card, "green"));
+});
+
+socket.on('pickred', function() {
+    $('.player .red').on('click', function() {
+	var selected = $('span', this).text();
+	$(this).css('border', '1px solid blue');
+	$('.player .red').unbind();
+	socket.emit('sendcard', selected);
+    });
 });
 
 socket.on('yourturn', function() {
-   $('.player').css('border','1px solid green');
+    $('.player').css('border','1px solid green');
+
+});
+
+socket.on('sentcard', function(card) {
+    $('.deal-red').append(drawCard(card,"red"));
 });
 
 // on connection to server
@@ -85,9 +100,19 @@ socket.on('updateusers', function(data) {
 
 socket.on('dealred', function(card) {
     console.log(card);
-    $('.player').append(card);
+    $('.player').append('<div class="card red"><span>'+card+'</span></div>');
 });
 
+
+socket.on('selectwinner', function() {
+    console.log('select winner');
+    $('.deal-red .card').on('click', function() {
+	$(this).css('border','3px solid red');
+	var text = $('span', this).text();
+	$('.deal-red').unbind();
+	socket.emit('updatescore', text);
+    });
+});
 
 // on load of page
 $(function(){
@@ -95,5 +120,6 @@ $(function(){
     });
 
 
-
-
+function drawCard(text, color) {
+    return '<div class="card '+color+'"><span>'+text+'</span></div>';
+}

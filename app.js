@@ -17,19 +17,16 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-// usernames which are currently connected to the chat
+// server variables
 var usernames = {};
 var redcards = [];
 var greencards = [];
 var currentturn = -1;
 var users = [];
+var data = [];
+var lookup = {};
 
 io.sockets.on('connection', function (socket) {
-    // when the client emits 'sendchat', this listens and executes
-    //socket.on('sendchat', function (data) {
-    // we tell the client to execute 'updatechat' with 2 parameters
-    ///  io.sockets.emit('updatechat', socket.username, data);
-    //});
 
     // when the client emits 'adduser', this listens and executes
     socket.on('adduser', function(username){
@@ -37,7 +34,11 @@ io.sockets.on('connection', function (socket) {
 	// we store the username in the socket session for this client
 	socket.username = username;
 	// add the client's username to the global list
-	users[Object.keys(usernames).length] = socket.id;
+	users.push({
+	    id:socket.id,
+	    name: username,
+	    score:0
+	});
 	usernames[socket.id] = username;
 	// echo to client they've connected
 	socket.emit('updatechat', 'SERVER', 'you have connected');
@@ -59,38 +60,96 @@ io.sockets.on('connection', function (socket) {
     });
 
     //update card data for every user
-    socket.on('loadcards', function(red, green) {
+    socket.on('initgame', function(red, green) {
 	console.log('update card data');
 	redcards = red;
 	greencards = green;
+	for (var r = 0; r < users.length; r++) {
+	    lookup[users[r].username] = r;
+	}
     });
 
+    //new round
     socket.on('newround', function() {
-	currentturn++;
+	console.log(currentturn, users.length);
+	//next turn
+	if (currentturn < users.length) {
+	    currentturn++;
+	}
+	else {
+	    currentturn = 0;
+	}
+
+	//clear data
+	data = [];
+
+	//deal every player red cards
 	for (var user in usernames) {
 	    if (usernames.hasOwnProperty(user)) {
-		console.log('dealing hand for '+user);
+		console.log('dealing hand for '+ user);
 		for(var c = 0; c < 3; c++) {
-		    io.to(user).emit('dealred', getCard(redcards));
-		    console.log('deal one card');
+		    var newredcard = getCard(redcards);
+		    console.log('deal '+ newredcard);
+		    io.to(user).emit('dealred', newredcard);
+
+		//console.log(redcards);
 		}
-		if(users[currentturn] == user) {
+		//identify who's turn it is
+		if(users[currentturn].id == user) {
 		    io.to(user).emit('yourturn');
+		}
+		else {
+		    io.to(user).emit('pickred');
 		}
 	    }
 	}
-	io.sockets.emit('dealgreen', getCard(greencards));
+	//deal green card
+	var newgreencard = getCard(greencards);
+	io.sockets.emit('dealgreen', newgreencard);
     });
+
+    socket.on('sendcard', function(card) {
+	console.log("sending card");
+	//store who gave which card
+	data.push({
+	    user:socket.username,
+	    card:card
+	});
+	io.to(users[currentturn].id).emit('sentcard', card);
+	if(data.length == users.length-1) { //everyone has submitted
+	    console.log('time to select the winner');
+	    io.to(users[currentturn].id).emit('selectwinner');
+	}
+    });
+
+    socket.on('updatescore', function(text) {
+	console.log("updating score" + text);
+	for(var w = 0; w < data.length;w++) {
+	    console.log(data[w].card);
+	    if(data[w].card == text) {
+		var winner = data[w].username;
+		var winnernum = lookup[winner];
+		users[winnernum].score++;
+		break;
+	    }
+	}
+
+
+	console.log(users);
+    });
+
 });
 
 
 function getCard(cards) {
+    console.log('getting card', cards[0]);
     var random = getRandomInt(0, cards.length);
-    if (cards[random].used == true) {
-	getCard(cards);
+    if (cards[random].used != true) {
+	cards[random].used = true;
+	return cards[random].key;
     }
-    cards[random].used = true;
-    return cards[random].key;
+    console.log("nope " + random  + cards[random].key + " found");
+    getCard(cards);
 }
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
