@@ -55,6 +55,7 @@ io.sockets.on('connection', function (socket) {
 	socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
     });
 
+    //update card data for every user
     socket.on('updatecarddata', function(red, green) {
 	io.sockets.emit('updatecarddata', red, green);
     });
