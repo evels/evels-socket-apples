@@ -20,6 +20,22 @@ $(document).ready(function() {
 	return;
     });
 
+    // when the client clicks SEND
+    $('#datasend').click( function() {
+	var message = $('#data').val();
+	$('#data').val('');
+	// tell server to execute 'sendchat' and send along one parameter
+	socket.emit('sendchat', message);
+    });
+
+    // when the client hits ENTER on their keyboard
+    $('#data').keypress(function(e) {
+	if(e.which == 13) {
+	    $(this).blur();
+	    $('#datasend').focus().click();
+	}
+    });
+
     $('.game-begin').on('click', function() {
 	//check for enough players
 	var redCards = [];
@@ -60,6 +76,8 @@ $(document).ready(function() {
 
 //card markup
 function drawCard(text, color) {
+    if(text == "facedown")
+	return '<div class="card '+color+' down"></div>';
     return '<div class="card '+color+'"><span>'+text+'</span></div>';
 }
 
@@ -70,6 +88,10 @@ function drawCard(text, color) {
 socket.on('connect', function(){
 
     });
+//update chat log
+socket.on('updatechat', function (username, data) {
+    $('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+});
 
 //update user list
 socket.on('updateusers', function(data) {
@@ -117,9 +139,14 @@ socket.on('pickred', function() {
 });
 
 
-//sending chosen card to center
-socket.on('sentcard', function(card) {
+//sending chosen card to center faceup
+socket.on('sentcardfaceup', function(card) {
     $('.deal-red').append(drawCard(card,"red"));
+});
+
+//sending chosen card to center facedown
+socket.on('sentcardfacedown', function() {
+    $('.deal-red').append(drawCard("facedown","red"));
 });
 
 //determining winner of round
