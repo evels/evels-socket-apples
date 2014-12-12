@@ -118,37 +118,28 @@ io.sockets.on('connection', function (socket) {
 		console.log('dealing hand for '+ user);
 		if(!(dealcount == 1 && user == users[currentturn-1].iden)) {
 		    for(var c = 0; c < dealcount; c++) {
-			//console.log('card '+ c + 'of ' + dealcount);
-			newredcard = getCard(redcards);
-			//this is a hack for a bug.
-			if(newredcard == undefined) {
-			    newredcard = 'Crazy Pants WHAT';
-			    console.log(redcards);
-			}
-			//console.log('deal '+ newredcard);
+			newredcard = redcards[redcards.length-1];
+			redcards.pop();
+			console.log(redcards, redcards.length);
 			io.to(user).emit('dealred', newredcard);
 
 		    }
 		}
 
 		//identify turn
-		console.log("compare", user);
-		console.log(users);
-		if (currentturn != 2) {
-		if(user[socket.id] == users[currentturn].name) {
+		//console.log("compare", user);
+		//console.log(users);
+		if(user == users[currentturn].iden) {
 		    io.to(user).emit('yourturn');
 		}
 		else {
 		    io.to(user).emit('pickred');
 		}
-		}
-		else {
-		    console.log('lololo');
-		}
 	    }
 	}
 	//deal green card
-	newgreencard = getCard(greencards);
+	newgreencard = greencards[greencards.length-1];
+	greencards.pop();
 	io.sockets.emit('dealgreen', newgreencard);
 	io.sockets.emit('turnplace',users[currentturn].name);
     });
@@ -205,17 +196,4 @@ io.sockets.on('connection', function (socket) {
 
 //-----------SERVER SIDE FUNCTIONS-------------
 
-//get card from which deck
-function getCard(cards) {
-    var random = getRandomInt(0, cards.length);
-    if (cards[random].used == false) {
-	cards[random].used = true;
-	console.log("key", cards[random].key);
-	return cards[random].key;
-    }
-    return getCard(cards);
-}
-//get random number
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-}
+

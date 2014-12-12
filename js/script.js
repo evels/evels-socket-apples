@@ -43,22 +43,12 @@ $(document).ready(function() {
 	$.when(
 	    // load cards
 	    $.get('redcards.txt', function(txtFile){
-		var temp_array = txtFile.split("\n");
-		for(var l = 0; l < temp_array.length; l++) {
-		    redCards.push({
-			key:temp_array[l],
-			used:false
-		    });
-		}
+		redCards = txtFile.split("\n");
+		shuffle(redCards);
 	    }),
 	    $.get('greencards.txt', function(txtFile){
-		var temp_array = txtFile.split("\n");
-		for(var l = 0; l < temp_array.length; l++) {
-		    greenCards.push({
-			key:temp_array[l],
-			used:false
-		    });
-		}
+		greenCards = txtFile.split("\n");
+		shuffle(greenCards);
 	    })
 
 	    ).then(function() {
@@ -78,6 +68,25 @@ $(document).ready(function() {
 function drawCard(text, color, face) {
     face = typeof face !== 'undefined' ?  " "+face : ' ';
     return '<div class="card '+color+face+'"><span>'+text+'</span></div>';
+}
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex ;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
 
 
