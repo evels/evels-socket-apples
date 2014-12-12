@@ -20,15 +20,22 @@ label {
 }
 
 .card.green {
-    width:200px;
-    height:300px;
+    width:199px;
+    height:274px;
 
 }
+
 .card.red {
     width:150px;
     height:250px;
 }
-
+.card.red.facedown {
+    width:100px;
+    height:137px;
+}
+.card.red.facedown span {
+    display:none;
+}
 .card span {
     display: block;
     font-size: 20px;
@@ -44,4 +51,29 @@ label {
 
 .card.green span {
     font-size:30px;
+}
+
+.player {
+    clear:both;
+    overflow:auto;
+}
+.player .card {
+    float:left;
+    margin-left:-100px;
+}
+
+.player .card:first-child {
+    margin-left:0;
+}
+
+.deal-green {
+    float:left;
+}
+
+.deal-red {
+    margin-left:400px;
+}
+.deal {
+    clear:both;
+    overflow:auto;
 }

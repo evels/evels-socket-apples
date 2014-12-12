@@ -16,7 +16,7 @@ $(document).ready(function() {
 	}
 	socket.emit('adduser', name);
 	$(this).fadeOut();
-	$('.game-waiting').removeClass('hide');
+	$('.game-waiting, .players-chat').removeClass('hide');
 	return;
     });
 
@@ -75,10 +75,9 @@ $(document).ready(function() {
 //-----------CLIENT SIDE FUNCTIONS-------------
 
 //card markup
-function drawCard(text, color) {
-    if(text == "facedown")
-	return '<div class="card '+color+' down"></div>';
-    return '<div class="card '+color+'"><span>'+text+'</span></div>';
+function drawCard(text, color, face) {
+    face = typeof face !== 'undefined' ?  " "+face : ' ';
+    return '<div class="card '+color+face+'"><span>'+text+'</span></div>';
 }
 
 
@@ -98,7 +97,7 @@ socket.on('updateusers', function(data) {
     usernames = data;
     $('#users').empty();
     $.each(data, function(key, value) {
-	$('#users').append('<div>' + value + '</div>');
+	$('#users').append('<div>' + value + '<span></span></div>');
     });
     if(Object.keys(data).length > 2) {
 	$('.game-begin').removeClass('hide');
@@ -110,6 +109,7 @@ socket.on('updateusers', function(data) {
 socket.on('startgame', function() {
     $('.game-enter').addClass('hide');
     $('.deal').removeClass('hide');
+    $('#users span').text('0');
 });
 //deal red card
 socket.on('dealred', function(card) {
@@ -132,7 +132,7 @@ socket.on('yourturn', function() {
 socket.on('pickred', function() {
     $('.player .red').on('click', function() {
 	var selected = $('span', this).text();
-	$(this).css('border', '1px solid blue');
+	$(this).addClass('chosenred');
 	$('.player .red').unbind();
 	socket.emit('sendcard', selected);
     });
@@ -141,17 +141,18 @@ socket.on('pickred', function() {
 
 //sending chosen card to center faceup
 socket.on('sentcardfaceup', function(card) {
-    $('.deal-red').append(drawCard(card,"red"));
+    $('.deal-red').append(drawCard(card,"red", "facedown"));
 });
 
 //sending chosen card to center facedown
 socket.on('sentcardfacedown', function() {
-    $('.deal-red').append(drawCard("facedown","red"));
+    $('.deal-red').append(drawCard("","red", "facedown"));
 });
 
 //determining winner of round
 socket.on('selectwinner', function() {
     console.log('select winner');
+    $('.card.red.facedown span').show();
     $('.deal-red .card').on('click', function() {
 	$(this).css('border','3px solid red');
 	var text = $('span', this).text();
@@ -160,5 +161,21 @@ socket.on('selectwinner', function() {
     });
 });
 
+//round ends
+socket.on('endround', function(users, winner) {
+    $('.deal-result').text(winner+' won the round!');
+    $('#users').empty();
+    for(var r = 0; r < users.length;r++) {
+	$('#users').append('<div>' + users[r].name + '<span>'+ users[r].score + '</span></div>');
+    }
+    $('.deal-newround').removeClass('hide').on('click', function() {
+	socket.emit('finishround');
+    });
+});
+
+socket.on('cleanupround', function() {
+    $('.deal-green, .deal-red, .deal-result').empty();
+    $('.chosenred').remove();
+});
 
 
