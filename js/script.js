@@ -174,7 +174,7 @@ socket.on('sentcardfaceup', function(card) {
 
 //sending chosen card to center facedown
 socket.on('sentcardfacedown', function() {
-    debug('sending ' + card + ' to center facedown');
+    debug('sending blanks to center facedown');
     $('.deal-red').append(drawCard("","red", "facedown"));
 });
 
