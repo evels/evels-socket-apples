@@ -25,7 +25,6 @@ var greencards = [];
 var redcardstracker = 0;
 var greencardstracker = 0;
 var currentturn = -1;
-var currentuser = '';
 var users = [];
 var rounddata = [];
 var lookup = {};
@@ -36,6 +35,7 @@ var gameinsession = false;
 
 io.sockets.on('connection', function (socket) {
 
+    //update list of users
     socket.emit('updateusers', usernames);
 
     //add a new user
@@ -79,7 +79,7 @@ io.sockets.on('connection', function (socket) {
     //game init
     socket.on('initgame', function(red, green) {
 	//load card data
-	console.log('update card data');
+	console.log('load card data');
 	redcards = red;
 	greencards = green;
 	//create lookup by username
@@ -100,16 +100,12 @@ io.sockets.on('connection', function (socket) {
 	var newredcard = '';
 	var newgreencard = '';
 	if(gameinsession == false) {
-	    dealcount = 3;
 	    gameinsession = true;
 	    for (var u = 0; u < users.length; u++) {
 		console.log('dealing hand for '+ users[u].name);
-		for(var c = 0; c < dealcount; c++) {
+		for(var c = 0; c < 7; c++) {
 		    newredcard = redcards[redcardstracker];
-		    console.log(redcardstracker,redcards.length-1);
-		    console.log((redcardstracker == redcards.length-1));
 		    redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
-		    console.log(redcardstracker);
 		    io.to(users[u].iden).emit('dealred', newredcard);
 		}
 	    }
@@ -127,7 +123,7 @@ io.sockets.on('connection', function (socket) {
 	//identify turn
 	for (var u = 0; u < users.length; u++) {
 	    if(users[u].name == users[currentturn].name) {
-		console.log("turn:"+ users[currentturn].name);
+		console.log("turn: "+ users[currentturn].name);
 		io.to(users[u].iden).emit('yourturn');
 	    }
 	    else {
@@ -163,8 +159,8 @@ io.sockets.on('connection', function (socket) {
 	    }
 	}
 
-	newredcard = redcards[redcards.length-1];
-	redcards.pop();
+	newredcard = redcards[redcardstracker];
+	redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
 	io.to(socket.id).emit('dealred', newredcard);
 
 	if(rounddata.length == users.length-1) { //everyone has submitted
@@ -186,7 +182,6 @@ io.sockets.on('connection', function (socket) {
 		var words = users[winnernum].words;
 		words.push(textg);
 		users[winnernum].words = words;
-		console.log(users);
 		break;
 	    }
 	}

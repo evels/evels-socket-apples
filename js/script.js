@@ -2,6 +2,7 @@
 
 var usernames = {};
 var socket = io.connect('http://localhost:8080');
+var apple_debugger = false;
 
 //-----------CLIENT DOCUMENT READY-------------
 
@@ -89,6 +90,12 @@ function shuffle(array) {
   return array;
 }
 
+function debug(text) {
+    if(apple_debugger == true) {
+	console.log(text);
+    }
+}
+
 
 //-----------CLIENT SIDE SOCKET LISTENERS-------------
 
@@ -98,11 +105,13 @@ socket.on('connect', function(){
     });
 //update chat log
 socket.on('updatechat', function (username, data) {
+    debug('update chat');
     $('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
 });
 
 //update user list
 socket.on('updateusers', function(data) {
+    debug('update users');
     usernames = data;
     $('#users').empty();
     $.each(data, function(key, value) {
@@ -116,34 +125,38 @@ socket.on('updateusers', function(data) {
 
 //start the game
 socket.on('startgame', function() {
+    debug('start game');
     $('.game-enter').addClass('hide');
     $('.deal').removeClass('hide');
     $('#users span').text('0');
 });
 //deal red card
 socket.on('dealred', function(card) {
-    console.log(card);
+    debug("deal red "+ card);
     $('.player').append('<div class="card red"><span>'+card+'</span></div>');
 });
 
 //deal green card
 socket.on('dealgreen', function(card) {
+    debug("drawing green "+card);
     $('.deal-green').html(drawCard(card, "green"));
 });
 
 //assigning visuals to current player
 socket.on('yourturn', function() {
+    debug('it is your turn!');
     $('.player').addClass('star');
-
 });
 
 //broadcasting whose turn it is
 socket.on('turnplace', function(user) {
+    debug('updating turn to '+ user);
     $('.deal-info span').text(user);
 });
 
 //asking user to pick a red card
 socket.on('pickred', function() {
+    debug("time to pick a red card to send to center");
     $('.player .red').on('click', function() {
 	var selected = $('span', this).text();
 	$(this).addClass('chosenred');
@@ -155,17 +168,19 @@ socket.on('pickred', function() {
 
 //sending chosen card to center faceup
 socket.on('sentcardfaceup', function(card) {
+    debug('sending ' + card + ' to center facedown');
     $('.deal-red').append(drawCard(card,"red", "facedown"));
 });
 
 //sending chosen card to center facedown
 socket.on('sentcardfacedown', function() {
+    debug('sending ' + card + ' to center facedown');
     $('.deal-red').append(drawCard("","red", "facedown"));
 });
 
 //determining winner of round
 socket.on('selectwinner', function() {
-    console.log('select winner');
+    debug('select winner');
     $('.card.red.facedown span').show();
     $('.deal-red .card').on('click', function() {
 	$(this).addClass('winner');
@@ -190,7 +205,7 @@ socket.on('endround', function(users, winner) {
 
 //clean up, clear the board
 socket.on('cleanupround', function() {
-    console.log('cleanupround');
+    debug('clean u pround');
     $('.deal-green, .deal-red, .deal-result').empty();
     $('.deal-newround').addClass('hide');
     $('.player').removeClass('star');
