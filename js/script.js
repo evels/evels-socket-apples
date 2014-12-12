@@ -169,9 +169,10 @@ socket.on('selectwinner', function() {
     $('.card.red.facedown span').show();
     $('.deal-red .card').on('click', function() {
 	$(this).addClass('winner');
-	var text = $('span', this).text();
+	var textr = $('span', this).text();
+	var textg = $('.deal-green .green span').text();
 	$('.deal-red').unbind();
-	socket.emit('updatescore', text);
+	socket.emit('updatescore', textr, textg);
     });
 });
 
@@ -194,6 +195,7 @@ socket.on('cleanupround', function() {
     $('.deal-newround').addClass('hide');
     $('.player').removeClass('star');
     $('.chosenred').remove();
+    $('.deal-newround').unbind();
 
 });
 

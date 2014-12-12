@@ -22,7 +22,10 @@ app.get('/', function (req, res) {
 var usernames = {};
 var redcards = [];
 var greencards = [];
+var redcardstracker = 0;
+var greencardstracker = 0;
 var currentturn = -1;
+var currentuser = '';
 var users = [];
 var rounddata = [];
 var lookup = {};
@@ -88,14 +91,7 @@ io.sockets.on('connection', function (socket) {
 
     //new round
     socket.on('newround', function() {
-	console.log(currentturn, users.length);
-	//advance turn
-	if (currentturn < users.length) {
-	    currentturn++;
-	}
-	else {
-	    currentturn = 0;
-	}
+	console.log("new round");
 
 	//clear data
 	rounddata = [];
@@ -106,40 +102,42 @@ io.sockets.on('connection', function (socket) {
 	if(gameinsession == false) {
 	    dealcount = 3;
 	    gameinsession = true;
-	}
-	else {
-	    dealcount = 1;
-	    io.sockets.emit('cleanupround');
-	}
-
-	//deal every player red cards
-	for (var user in usernames) {
-	    if (usernames.hasOwnProperty(user)) {
-		console.log('dealing hand for '+ user);
-		if(!(dealcount == 1 && user == users[currentturn-1].iden)) {
-		    for(var c = 0; c < dealcount; c++) {
-			newredcard = redcards[redcards.length-1];
-			redcards.pop();
-			console.log(redcards, redcards.length);
-			io.to(user).emit('dealred', newredcard);
-
-		    }
-		}
-
-		//identify turn
-		//console.log("compare", user);
-		//console.log(users);
-		if(user == users[currentturn].iden) {
-		    io.to(user).emit('yourturn');
-		}
-		else {
-		    io.to(user).emit('pickred');
+	    for (var u = 0; u < users.length; u++) {
+		console.log('dealing hand for '+ users[u].name);
+		for(var c = 0; c < dealcount; c++) {
+		    newredcard = redcards[redcardstracker];
+		    console.log(redcardstracker,redcards.length-1);
+		    console.log((redcardstracker == redcards.length-1));
+		    redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
+		    console.log(redcardstracker);
+		    io.to(users[u].iden).emit('dealred', newredcard);
 		}
 	    }
 	}
+	else {
+	    io.sockets.emit('cleanupround');
+	}
+
+	//advance turn
+	if (currentturn >= users.length-1) {
+	    currentturn = -1;
+	}
+	currentturn++;
+
+	//identify turn
+	for (var u = 0; u < users.length; u++) {
+	    if(users[u].name == users[currentturn].name) {
+		console.log("turn:"+ users[currentturn].name);
+		io.to(users[u].iden).emit('yourturn');
+	    }
+	    else {
+		io.to(users[u].iden).emit('pickred');
+	    }
+	}
+
 	//deal green card
-	newgreencard = greencards[greencards.length-1];
-	greencards.pop();
+	newgreencard = greencards[greencardstracker];
+	greencardstracker = (greencardstracker == greencards.length-1) ? 0 : greencardstracker+1;
 	io.sockets.emit('dealgreen', newgreencard);
 	io.sockets.emit('turnplace',users[currentturn].name);
     });
@@ -165,6 +163,10 @@ io.sockets.on('connection', function (socket) {
 	    }
 	}
 
+	newredcard = redcards[redcards.length-1];
+	redcards.pop();
+	io.to(socket.id).emit('dealred', newredcard);
+
 	if(rounddata.length == users.length-1) { //everyone has submitted
 	    console.log('time to select the winner');
 	    io.to(users[currentturn].iden).emit('selectwinner');
@@ -172,17 +174,17 @@ io.sockets.on('connection', function (socket) {
     });
 
     //update the score
-    socket.on('updatescore', function(text) {
-	console.log("updating score " + text);
+    socket.on('updatescore', function(textr, textg) {
+	console.log("updating score " + textr + textg);
 	var winner;
 	for(var w = 0; w < rounddata.length; w++) {
-	    if(rounddata[w].card == text) {
+	    if(rounddata[w].card == textr) {
 		winner = rounddata[w].user;
 		console.log('winner',winner);
 		var winnernum = lookup[winner];
 		users[winnernum].score++;
 		var words = users[winnernum].words;
-		words.push(text);
+		words.push(textg);
 		users[winnernum].words = words;
 		console.log(users);
 		break;
