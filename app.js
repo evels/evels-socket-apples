@@ -42,7 +42,7 @@ io.sockets.on('connection', function (socket) {
 	socket.username = username;
 	// add the client's username to the global list
 	users.push({
-	    id:socket.id,
+	    iden:socket.id,
 	    name: username,
 	    score:0,
 	    words:[]
@@ -98,42 +98,57 @@ io.sockets.on('connection', function (socket) {
 	}
 
 	//clear data
-	data = [];
+	rounddata = [];
 
+	var dealcount = 0;
+	var newredcard = '';
+	var newgreencard = '';
 	if(gameinsession == false) {
 	    dealcount = 3;
 	    gameinsession = true;
 	}
 	else {
 	    dealcount = 1;
+	    io.sockets.emit('cleanupround');
 	}
 
 	//deal every player red cards
 	for (var user in usernames) {
 	    if (usernames.hasOwnProperty(user)) {
 		console.log('dealing hand for '+ user);
-		for(var c = 0; c < dealcount; c++) {
-		    var newredcard = getCard(redcards);
-
-		    //this is a fix to a bug.
-		    if(newredcard == undefined)
+		if(!(dealcount == 1 && user == users[currentturn-1].iden)) {
+		    for(var c = 0; c < dealcount; c++) {
+			//console.log('card '+ c + 'of ' + dealcount);
 			newredcard = getCard(redcards);
+			//this is a hack for a bug.
+			if(newredcard == undefined) {
+			    newredcard = 'Crazy Pants WHAT';
+			    console.log(redcards);
+			}
+			//console.log('deal '+ newredcard);
+			io.to(user).emit('dealred', newredcard);
 
-		    console.log('deal '+ newredcard);
-		    io.to(user).emit('dealred', newredcard);
-
+		    }
 		}
+
 		//identify turn
-		if(user == users[currentturn].id) {
+		console.log("compare", user);
+		console.log(users);
+		if (currentturn != 2) {
+		if(user[socket.id] == users[currentturn].name) {
 		    io.to(user).emit('yourturn');
 		}
 		else {
 		    io.to(user).emit('pickred');
 		}
+		}
+		else {
+		    console.log('lololo');
+		}
 	    }
 	}
 	//deal green card
-	var newgreencard = getCard(greencards);
+	newgreencard = getCard(greencards);
 	io.sockets.emit('dealgreen', newgreencard);
 	io.sockets.emit('turnplace',users[currentturn].name);
     });
@@ -150,7 +165,7 @@ io.sockets.on('connection', function (socket) {
 	for (var user in usernames) {
 	    if (usernames.hasOwnProperty(user)) {
 		//identify turn
-		if(users[currentturn].id == user) {
+		if(users[currentturn].iden == user) {
 		    io.to(user).emit('sentcardfaceup', card);
 		}
 		else {
@@ -161,7 +176,7 @@ io.sockets.on('connection', function (socket) {
 
 	if(rounddata.length == users.length-1) { //everyone has submitted
 	    console.log('time to select the winner');
-	    io.to(users[currentturn].id).emit('selectwinner');
+	    io.to(users[currentturn].iden).emit('selectwinner');
 	}
     });
 
@@ -185,9 +200,6 @@ io.sockets.on('connection', function (socket) {
 	io.sockets.emit('endround', users, winner);
     });
 
-    socket.on('finishround', function() {
-	io.sockets.emit('cleanupround');
-    });
 
 });
 
@@ -195,15 +207,13 @@ io.sockets.on('connection', function (socket) {
 
 //get card from which deck
 function getCard(cards) {
-    //console.log('getting card', cards.length);
     var random = getRandomInt(0, cards.length);
     if (cards[random].used == false) {
 	cards[random].used = true;
 	console.log("key", cards[random].key);
 	return cards[random].key;
     }
-    //console.log("nope " + random  + cards[random].key + " found");
-    getCard(cards);
+    return getCard(cards);
 }
 //get random number
 function getRandomInt(min, max) {

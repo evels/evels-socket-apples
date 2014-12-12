@@ -57,6 +57,11 @@ label {
     clear:both;
     overflow:auto;
 }
+
+.player.star {
+    background-color:green;
+}
+
 .player .card {
     float:left;
     margin-left:-100px;
@@ -66,12 +71,20 @@ label {
     margin-left:0;
 }
 
+.player .card.chosenred {
+    background-color:red;
+}
+
 .deal-green {
     float:left;
 }
 
 .deal-red {
     margin-left:400px;
+}
+
+.deal-red .card.winner {
+    border:3px solid red;
 }
 .deal {
     clear:both;

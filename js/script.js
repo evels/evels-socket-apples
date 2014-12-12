@@ -124,8 +124,13 @@ socket.on('dealgreen', function(card) {
 
 //assigning visuals to current player
 socket.on('yourturn', function() {
-    $('.player').css('border','1px solid green');
+    $('.player').addClass('star');
 
+});
+
+//broadcasting whose turn it is
+socket.on('turnplace', function(user) {
+    $('.deal-info span').text(user);
 });
 
 //asking user to pick a red card
@@ -154,7 +159,7 @@ socket.on('selectwinner', function() {
     console.log('select winner');
     $('.card.red.facedown span').show();
     $('.deal-red .card').on('click', function() {
-	$(this).css('border','3px solid red');
+	$(this).addClass('winner');
 	var text = $('span', this).text();
 	$('.deal-red').unbind();
 	socket.emit('updatescore', text);
@@ -169,13 +174,18 @@ socket.on('endround', function(users, winner) {
 	$('#users').append('<div>' + users[r].name + '<span>'+ users[r].score + '</span></div>');
     }
     $('.deal-newround').removeClass('hide').on('click', function() {
-	socket.emit('finishround');
+	socket.emit('newround');
     });
 });
 
+//clean up, clear the board
 socket.on('cleanupround', function() {
+    console.log('cleanupround');
     $('.deal-green, .deal-red, .deal-result').empty();
+    $('.deal-newround').addClass('hide');
+    $('.player').removeClass('star');
     $('.chosenred').remove();
+
 });
 
 
