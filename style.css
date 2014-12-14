@@ -3,6 +3,10 @@ body {
     background:url('images/bg.jpg') no-repeat 30% 75%;
     margin:20px;
 }
+.container {
+    min-width:700px;
+    overflow:scroll;
+}
 label {
     display:block;
 }
@@ -17,45 +21,53 @@ label {
 
 .card {
     border:1px solid gray;
+    -webkit-box-shadow: 4px 2px 13px -3px rgba(0,0,0,0.75);
+    -moz-box-shadow: 4px 2px 13px -3px rgba(0,0,0,0.75);
+    box-shadow: 4px 2px 13px -3px rgba(0,0,0,0.75);
+    border-radius: 6px 6px 6px 6px;
+    -moz-border-radius: 6px 6px 6px 6px;
+    -webkit-border-radius: 6px 6px 6px 6px;
+        width:150px;
+    height:206px;
 }
 
 .card.green {
-    width:199px;
-    height:274px;
+    background:url('images/green-front.jpg') no-repeat 0 0;
+}
+.card.green span {
 
 }
-
 .card.red {
-    width:150px;
-    height:250px;
+    background:url('images/red-front.jpg') no-repeat 0 0;
 }
+
 .card.red.facedown {
-    width:100px;
-    height:137px;
+    background:url('images/red-back.jpg') no-repeat 0 0;
+
 }
 .card.red.facedown span {
     display:none;
 }
+
+
 .card span {
     display: block;
     font-size: 20px;
-    left: -72px;
+    left: -78px;
     position: relative;
     text-align: right;
     top: 100px;
     transform: rotate(-90deg);
-    width: 200px;
+    width: 195px;
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
 }
 
-.card.green span {
-    font-size:30px;
-}
 
 .player {
     clear:both;
     overflow:auto;
+    padding:60px;
 }
 
 .player.star {
@@ -75,18 +87,101 @@ label {
     background-color:red;
 }
 
-.deal-green {
-    float:left;
+.player:not(.star) .card:hover{
+    z-index:1000;
+    cursor:pointer;
+}
+.player .card:nth-child(1) {
+    transform: rotate(-30deg);
+    margin-top:20px;
+}
+.player .card:nth-child(2) {
+    transform: rotate(-20deg);
+    margin-top:5px;
+}
+.player .card:nth-child(3) {
+    transform: rotate(-10deg);
+}
+.player .card:nth-child(4) {
+    transform: rotate(0deg);
+}
+.player .card:nth-child(5) {
+    transform: rotate(10deg);
+    margin-top:5px;
+}
+.player .card:nth-child(6) {
+    transform: rotate(20deg);
+    margin-top:22px;
+}
+.player .card:nth-child(7) {
+    transform: rotate(30deg);
+    margin-left:-108px;
+    margin-top:50px;
 }
 
-.deal-red {
-    margin-left:400px;
-}
-
-.deal-red .card.winner {
-    border:3px solid red;
-}
 .deal {
     clear:both;
     overflow:auto;
+    padding:10px;
+}
+
+.deal .card {
+
+}
+
+.deal-green {
+    float:left;
+    padding:10px;
+}
+
+.deal-red {
+    margin-left:200px;
+    overflow:auto;
+    padding:25px;
+}
+.deal-red .card {
+    float:left;
+    margin-left:-80px;
+}
+.deal-red .card:first-child {
+    margin-left:0;
+}
+.deal-red .card:nth-child(2n) {
+    margin-top:10px;
+}
+.deal-red .card:nth-child(3n) {
+    margin-top:20px;
+}
+.deal-red.selectwinner .card {
+    cursor:pointer;
+}
+.deal-red .card.winner {
+    z-index:100;
+    transform:scale(1.2, 1.2);
+}
+.right {
+
+}
+
+.started .right-container {
+    left: 740px;
+    position: absolute;
+    width: 255px;
+}
+
+.started .left {
+    float:left;
+    width:700px;
+}
+
+.players-list h3 {
+    margin-bottom:5px;
+}
+#users span {
+    float:right;
+    width:60px;
+}
+.started #conversation {
+    height:245px;
+    overflow:scroll;
 }

@@ -73,7 +73,7 @@ io.sockets.on('connection', function (socket) {
 	delete usernames[socket.id];
 	// update list of users in chat, client-side
 	io.sockets.emit('updateusers', usernames);
-	socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+    //socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
     });
 
     //game init
@@ -147,17 +147,7 @@ io.sockets.on('connection', function (socket) {
 	    card:card
 	});
 
-	for (var user in usernames) {
-	    if (usernames.hasOwnProperty(user)) {
-		//identify turn
-		if(users[currentturn].iden == user) {
-		    io.to(user).emit('sentcardfaceup', card);
-		}
-		else {
-		    io.to(user).emit('sentcardfacedown');
-		}
-	    }
-	}
+	io.sockets.emit('sentcardfacedown', card);
 
 	newredcard = redcards[redcardstracker];
 	redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
@@ -185,7 +175,7 @@ io.sockets.on('connection', function (socket) {
 		break;
 	    }
 	}
-	io.sockets.emit('endround', users, winner);
+	io.sockets.emit('endround', users, winner,textr);
     });
 
 

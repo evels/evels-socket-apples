@@ -15,6 +15,7 @@ $(document).ready(function() {
 	if(name == "") {
 	    name = "[no name]";
 	}
+	$('.info-name span').text(name);
 	socket.emit('adduser', name);
 	$(this).fadeOut();
 	$('.game-waiting, .players-chat').removeClass('hide');
@@ -27,14 +28,6 @@ $(document).ready(function() {
 	$('#data').val('');
 	// tell server to execute 'sendchat' and send along one parameter
 	socket.emit('sendchat', message);
-    });
-
-    // when the client hits ENTER on their keyboard
-    $('#data').keypress(function(e) {
-	if(e.which == 13) {
-	    $(this).blur();
-	    $('#datasend').focus().click();
-	}
     });
 
     $('.game-begin').on('click', function() {
@@ -72,22 +65,22 @@ function drawCard(text, color, face) {
 }
 
 function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex ;
+    var currentIndex = array.length, temporaryValue, randomIndex ;
 
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
 
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
+	// Pick a remaining element...
+	randomIndex = Math.floor(Math.random() * currentIndex);
+	currentIndex -= 1;
 
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
+	// And swap it with the current element.
+	temporaryValue = array[currentIndex];
+	array[currentIndex] = array[randomIndex];
+	array[randomIndex] = temporaryValue;
+    }
 
-  return array;
+    return array;
 }
 
 function debug(text) {
@@ -106,7 +99,10 @@ socket.on('connect', function(){
 //update chat log
 socket.on('updatechat', function (username, data) {
     debug('update chat');
-    $('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+    $('#conversation').append('<strong>'+username + ':</strong> ' + data + '<br>');
+    $("#conversation").animate({
+	scrollTop: $('#conversation').height()
+    }, "slow");
 });
 
 //update user list
@@ -126,14 +122,16 @@ socket.on('updateusers', function(data) {
 //start the game
 socket.on('startgame', function() {
     debug('start game');
+    $('.container').addClass('started');
     $('.game-enter').addClass('hide');
-    $('.deal').removeClass('hide');
-    $('#users span').text('0');
+    $('.deal, .player, .info-name, .info-turn').removeClass('hide');
+    $('#users span').text('0 pts');
 });
 //deal red card
 socket.on('dealred', function(card) {
     debug("deal red "+ card);
-    $('.player').append('<div class="card red"><span>'+card+'</span></div>');
+    var markup = '<div class="card red"><span>'+card+'</span></div>';
+    $(markup).hide().appendTo('.player').fadeIn("slow");
 });
 
 //deal green card
@@ -159,44 +157,48 @@ socket.on('pickred', function() {
     debug("time to pick a red card to send to center");
     $('.player .red').on('click', function() {
 	var selected = $('span', this).text();
-	$(this).addClass('chosenred');
+	$(this).fadeOut("normal", function() {
+	    $(this).remove();
+	    socket.emit('sendcard', selected);
+	});
 	$('.player .red').unbind();
-	socket.emit('sendcard', selected);
+
     });
 });
 
-
-//sending chosen card to center faceup
-socket.on('sentcardfaceup', function(card) {
+//sending chosen card to center facedown
+socket.on('sentcardfacedown', function(card) {
     debug('sending ' + card + ' to center facedown');
     $('.deal-red').append(drawCard(card,"red", "facedown"));
-});
-
-//sending chosen card to center facedown
-socket.on('sentcardfacedown', function() {
-    debug('sending blanks to center facedown');
-    $('.deal-red').append(drawCard("","red", "facedown"));
 });
 
 //determining winner of round
 socket.on('selectwinner', function() {
     debug('select winner');
-    $('.card.red.facedown span').show();
+    $('.deal-red').addClass('selectwinner');
+    $('.card.red.facedown span').css('display', 'block').parent().removeClass('facedown');
     $('.deal-red .card').on('click', function() {
 	$(this).addClass('winner');
 	var textr = $('span', this).text();
 	var textg = $('.deal-green .green span').text();
-	$('.deal-red').unbind();
+	$('.deal-red .card').unbind();
 	socket.emit('updatescore', textr, textg);
     });
 });
 
 //round ends
-socket.on('endround', function(users, winner) {
+socket.on('endround', function(users, winner,textr) {
+    $('.card.red.facedown span').css('display', 'block').parent().removeClass('facedown');
+
+    $('.card.red').each(function() {
+	if($('span',this).text() === textr) {
+	    $(this).addClass('winner');
+	}
+    });
     $('.deal-result').text(winner+' won the round!');
     $('#users').empty();
     for(var r = 0; r < users.length;r++) {
-	$('#users').append('<div>' + users[r].name + '<span>'+ users[r].score + '</span></div>');
+	$('#users').append('<div>' + users[r].name + '<span>'+ users[r].score + ' pts</span></div>');
     }
     $('.deal-newround').removeClass('hide').on('click', function() {
 	socket.emit('newround');
@@ -207,10 +209,9 @@ socket.on('endround', function(users, winner) {
 socket.on('cleanupround', function() {
     debug('clean u pround');
     $('.deal-green, .deal-red, .deal-result').empty();
-    $('.deal-newround').addClass('hide');
+    $('.deal-red').removeClass('selectwinner');
+    $('.deal-newround').addClass('hide').unbind();
     $('.player').removeClass('star');
-    $('.chosenred').remove();
-    $('.deal-newround').unbind();
 
 });
 
