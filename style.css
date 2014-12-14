@@ -1,6 +1,6 @@
 body {
     font-family: 'Slabo 27px', serif;
-    background:url('images/bg.jpg') no-repeat 30% 75%;
+    background:url('images/bg.jpg') no-repeat 30% 100%;
     margin:20px;
 }
 .container {
@@ -17,6 +17,7 @@ label {
 
 .game-enter {
     margin-bottom:20px;
+    height:100px;
 }
 
 .card {
@@ -27,7 +28,7 @@ label {
     border-radius: 6px 6px 6px 6px;
     -moz-border-radius: 6px 6px 6px 6px;
     -webkit-border-radius: 6px 6px 6px 6px;
-        width:150px;
+    width:150px;
     height:206px;
 }
 
@@ -52,7 +53,7 @@ label {
 
 .card span {
     display: block;
-    font-size: 20px;
+    font-size: 19px;
     left: -78px;
     position: relative;
     text-align: right;
@@ -118,7 +119,9 @@ label {
     margin-left:-108px;
     margin-top:50px;
 }
-
+#data {
+    width:175px;
+}
 .deal {
     clear:both;
     overflow:auto;
@@ -141,7 +144,7 @@ label {
 }
 .deal-red .card {
     float:left;
-    margin-left:-80px;
+    margin-left:-900px;
 }
 .deal-red .card:first-child {
     margin-left:0;
@@ -158,20 +161,22 @@ label {
 .deal-red .card.winner {
     z-index:100;
     transform:scale(1.2, 1.2);
+    margin-left:-75px;
 }
 .right {
 
 }
 
 .started .right-container {
-    left: 740px;
+    left: 650px;
     position: absolute;
     width: 255px;
+    padding:20px
 }
 
 .started .left {
     float:left;
-    width:700px;
+    width:650px;
 }
 
 .players-list h3 {

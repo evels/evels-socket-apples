@@ -1,6 +1,7 @@
 //-----------CLIENT SIDE VARIABLES-------------
 
 var usernames = {};
+var users = [];
 var socket = io.connect('http://localhost:8080');
 var apple_debugger = false;
 
@@ -15,6 +16,11 @@ $(document).ready(function() {
 	if(name == "") {
 	    name = "[no name]";
 	}
+	if($.inArray(name,users) != -1) {
+	    console.log($.inArray('name',users));
+	    console.log(users);
+	    name += '2'
+	}
 	$('.info-name span').text(name);
 	socket.emit('adduser', name);
 	$(this).fadeOut();
@@ -23,11 +29,12 @@ $(document).ready(function() {
     });
 
     // when the client clicks SEND
-    $('#datasend').click( function() {
-	var message = $('#data').val();
-	$('#data').val('');
-	// tell server to execute 'sendchat' and send along one parameter
+    $('.player-chat-window').submit(function(event) {
+	event.preventDefault();
+	var message = $('#player-chat-window-data').val();
+	$('#player-chat-window-data').val('');
 	socket.emit('sendchat', message);
+	return;
     });
 
     $('.game-begin').on('click', function() {
@@ -109,9 +116,11 @@ socket.on('updatechat', function (username, data) {
 socket.on('updateusers', function(data) {
     debug('update users');
     usernames = data;
+    users = [];
     $('#users').empty();
     $.each(data, function(key, value) {
 	$('#users').append('<div>' + value + '<span></span></div>');
+	users.push(value);
     });
     if(Object.keys(data).length > 2) {
 	$('.game-begin').removeClass('hide');
@@ -149,7 +158,7 @@ socket.on('yourturn', function() {
 //broadcasting whose turn it is
 socket.on('turnplace', function(user) {
     debug('updating turn to '+ user);
-    $('.deal-info span').text(user);
+    $('.deal-turn span').text(user);
 });
 
 //asking user to pick a red card
@@ -192,7 +201,7 @@ socket.on('endround', function(users, winner,textr) {
 
     $('.card.red').each(function() {
 	if($('span',this).text() === textr) {
-	    $(this).addClass('winner');
+	    $(this).addClass('winner').appendTo($(this).parent());
 	}
     });
     $('.deal-result').text(winner+' won the round!');
