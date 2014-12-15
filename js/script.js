@@ -60,6 +60,10 @@ $(document).ready(function() {
 	});
 
     });
+
+    $('.game-end').on('click', function() {
+	socket.emit('endgame');
+    });
 });
 
 
@@ -133,7 +137,7 @@ socket.on('startgame', function() {
     debug('start game');
     $('.container').addClass('started');
     $('.game-enter').addClass('hide');
-    $('.deal, .player, .info-name, .info-turn').removeClass('hide');
+    $('.deal, .player, .info-name, .info-turn, .game-end').removeClass('hide');
     $('#users span').text('0 pts');
 });
 //deal red card
@@ -158,7 +162,7 @@ socket.on('yourturn', function() {
 //broadcasting whose turn it is
 socket.on('turnplace', function(user) {
     debug('updating turn to '+ user);
-    $('.deal-turn span').text(user);
+    $('.info-turn span').text(user);
 });
 
 //asking user to pick a red card
@@ -222,6 +226,28 @@ socket.on('cleanupround', function() {
     $('.deal-newround').addClass('hide').unbind();
     $('.player').removeClass('star');
 
+});
+
+
+socket.on('gameend', function(data) {
+    $('.left, .info-turn, .players-list, .game-end').fadeOut();
+    $('.score').removeClass('hide');
+    for(var s= 0;s < data.length;s++) {
+	var score_text = '<div class="person"><h3>' + data[s].name + '</h3><h4>' + data[s].score + ' points</h4>';
+	if(data[s].words.length != 0) {
+	    score_text += '<div class="score-words">';
+	    for(var w = 0;w < data[s].words.length;w++) {
+		score_text += drawCard(data[s].words[w], "green");
+	    }
+	    score_text += '</div>';
+	}
+	score_text += '</div>';
+	$('.score').append(score_text);
+    }
+    if(Object.keys(data).length > 2) {
+	$('.game-begin').removeClass('hide');
+	$('.game-waiting').addClass('hide');
+    }
 });
 
 

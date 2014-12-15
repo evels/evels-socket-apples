@@ -53,7 +53,7 @@ label {
 
 .card span {
     display: block;
-    font-size: 19px;
+    font-size: 18px;
     left: -78px;
     position: relative;
     text-align: right;
@@ -140,19 +140,19 @@ label {
 .deal-red {
     margin-left:200px;
     overflow:auto;
-    padding:25px;
+    padding:20px 30px 40px;
 }
-.deal-red .card {
+.deal-red .card, .score-words .card {
     float:left;
-    margin-left:-900px;
+    margin-left:-75px;
 }
-.deal-red .card:first-child {
+.deal-red .card:first-child, .score-words .card:first-child {
     margin-left:0;
 }
-.deal-red .card:nth-child(2n) {
+.deal-red .card:nth-child(2n), .score-words .card:nth-child(2n) {
     margin-top:10px;
 }
-.deal-red .card:nth-child(3n) {
+.deal-red .card:nth-child(3n), score-words .card:nth-child(3n) {
     margin-top:20px;
 }
 .deal-red.selectwinner .card {
@@ -189,4 +189,26 @@ label {
 .started #conversation {
     height:245px;
     overflow:scroll;
+}
+
+input[type="submit"], button {
+    transition: all 0.1s;
+    -webkit-transition: all 0.1s;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #335e14;
+    background-color: #d1f7c9;
+    border-bottom: 1px solid #335e14;
+}
+
+input[type="submit"]:active, button:active
+{
+    transform: translate(0px,2px);
+    -webkit-transform: translate(0px,2px);
+    border-bottom: 1px solid;
+}
+
+.person {
+    display:block;
 }

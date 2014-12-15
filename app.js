@@ -178,6 +178,11 @@ io.sockets.on('connection', function (socket) {
 	io.sockets.emit('endround', users, winner,textr);
     });
 
+    //end game
+    socket.on('endgame', function() {
+	io.sockets.emit('gameend',users);
+    });
+
 
 });
 
