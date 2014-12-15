@@ -1,9 +1,15 @@
 {
-  "name": "socket-chat-example",
+  "name": "socket-apples",
   "version": "0.0.1",
-  "description": "my first socket.io app",
+  "description": "Apples to Apples",
   "dependencies": {
     "express": "^4.10.2",
     "socket.io": "^1.2.1"
-  }
+  },
+  "engines": {
+      "node":"0.10.33"
+  },
+  "scripts": {
+  "start": "node app",
+}
 }
