@@ -2,6 +2,10 @@
     "name": "socket-apples",
     "version": "0.0.1",
     "description": "Apples to Apples",
+    "repository" : {
+	"type" : "git",
+	"url" : "http://github.com/evels/socket-apples.git"
+    },
     "dependencies": {
 	"express": "^4.10.2",
 	"socket.io": "^1.2.1"

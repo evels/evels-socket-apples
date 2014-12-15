@@ -72,7 +72,7 @@ label {
 }
 
 .player.star {
-    background-color:green;
+    background:url('images/dealer.png') no-repeat 0 0;
 }
 
 .player .card {
@@ -171,7 +171,8 @@ label {
     left: 650px;
     position: absolute;
     width: 255px;
-    padding:20px
+    padding:20px;
+    background-color:rgba(255,255,255,.75);
 }
 
 .started .left {
@@ -208,7 +209,18 @@ input[type="submit"]:active, button:active
     -webkit-transform: translate(0px,2px);
     border-bottom: 1px solid;
 }
-
 .person {
     display:block;
+    clear:both;
+    padding:20px;
+}
+.deal-result {
+    font-size:24px;
+}
+#player-chat-window-data {
+    width:150px
+}
+
+.game-end {
+    margin-top:20px;
 }
