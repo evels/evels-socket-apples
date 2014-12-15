@@ -16,9 +16,9 @@ $(document).ready(function() {
 	if(name == "") {
 	    name = "[no name]";
 	}
+	//names must be unique
 	if($.inArray(name,users) != -1) {
-	    console.log($.inArray('name',users));
-	    console.log(users);
+	    debug('name already used');
 	    name += '2'
 	}
 	$('.info-name span').text(name);
@@ -28,7 +28,7 @@ $(document).ready(function() {
 	return;
     });
 
-    // when the client clicks SEND
+    // game chat
     $('.player-chat-window').submit(function(event) {
 	event.preventDefault();
 	var message = $('#player-chat-window-data').val();
@@ -37,6 +37,7 @@ $(document).ready(function() {
 	return;
     });
 
+    //start the game
     $('.game-begin').on('click', function() {
 	//check for enough players
 	var redCards = [];
@@ -53,14 +54,12 @@ $(document).ready(function() {
 	    })
 
 	    ).then(function() {
-
 	    socket.emit('initgame', redCards, greenCards);
 	    socket.emit('newround');
-
 	});
-
     });
 
+    //game ends
     $('.game-end').on('click', function() {
 	socket.emit('endgame');
     });
@@ -126,6 +125,7 @@ socket.on('updateusers', function(data) {
 	$('#users').append('<div>' + value + '<span></span></div>');
 	users.push(value);
     });
+    //three players is enough to start the game
     if(Object.keys(data).length > 2) {
 	$('.game-begin').removeClass('hide');
 	$('.game-waiting').addClass('hide');
@@ -175,7 +175,6 @@ socket.on('pickred', function() {
 	    socket.emit('sendcard', selected);
 	});
 	$('.player .red').unbind();
-
     });
 });
 
@@ -190,6 +189,7 @@ socket.on('selectwinner', function() {
     debug('select winner');
     $('.deal-red').addClass('selectwinner');
     $('.card.red.facedown span').css('display', 'block').parent().removeClass('facedown');
+    //sending winning card
     $('.deal-red .card').on('click', function() {
 	$(this).addClass('winner');
 	var textr = $('span', this).text();
@@ -202,7 +202,7 @@ socket.on('selectwinner', function() {
 //round ends
 socket.on('endround', function(users, winner,textr) {
     $('.card.red.facedown span').css('display', 'block').parent().removeClass('facedown');
-
+    //showing winning card
     $('.card.red').each(function() {
 	if($('span',this).text() === textr) {
 	    $(this).addClass('winner').appendTo($(this).parent());
@@ -210,9 +210,11 @@ socket.on('endround', function(users, winner,textr) {
     });
     $('.deal-result').text(winner+' won the round!');
     $('#users').empty();
+    //update the score
     for(var r = 0; r < users.length;r++) {
 	$('#users').append('<div>' + users[r].name + '<span>'+ users[r].score + ' pts</span></div>');
     }
+    //ready for new round
     $('.deal-newround').removeClass('hide').on('click', function() {
 	socket.emit('newround');
     });
@@ -228,12 +230,15 @@ socket.on('cleanupround', function() {
 
 });
 
-
+//game ends
 socket.on('gameend', function(data) {
+    //change windows
     $('.left, .info-turn, .players-list, .game-end').fadeOut();
     $('.score').removeClass('hide');
+    //list scores
     for(var s= 0;s < data.length;s++) {
-	var score_text = '<div class="person"><h3>' + data[s].name + '</h3><h4>' + data[s].score + ' points</h4>';
+	var score_text = '<div class="person"><h2>' + data[s].name + '</h2><h3>' + data[s].score + ' points</h3>';
+	//show cards won
 	if(data[s].words.length != 0) {
 	    score_text += '<div class="score-words">';
 	    for(var w = 0;w < data[s].words.length;w++) {
@@ -243,10 +248,6 @@ socket.on('gameend', function(data) {
 	}
 	score_text += '</div>';
 	$('.score').append(score_text);
-    }
-    if(Object.keys(data).length > 2) {
-	$('.game-begin').removeClass('hide');
-	$('.game-waiting').addClass('hide');
     }
 });
 

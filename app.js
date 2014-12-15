@@ -29,6 +29,7 @@ var users = [];
 var rounddata = [];
 var lookup = {};
 var gameinsession = false;
+var apple_debugger = true;
 
 
 //-----------SERVER SOCKET LISTENERS-------------
@@ -40,7 +41,7 @@ io.sockets.on('connection', function (socket) {
 
     //add a new user
     socket.on('adduser', function(username){
-	console.log('add user '+ username);
+	debug('add user '+ username);
 	//use for this session
 	socket.username = username;
 	// add the client's username to the global list
@@ -79,7 +80,7 @@ io.sockets.on('connection', function (socket) {
     //game init
     socket.on('initgame', function(red, green) {
 	//load card data
-	console.log('load card data');
+	debug('load card data');
 	redcards = red;
 	greencards = green;
 	//create lookup by username
@@ -91,18 +92,20 @@ io.sockets.on('connection', function (socket) {
 
     //new round
     socket.on('newround', function() {
-	console.log("new round");
+	debug("new round");
 
 	//clear data
 	rounddata = [];
 
-	var dealcount = 0;
-	var newredcard = '';
-	var newgreencard = '';
+	var newredcard = ''; //clear card
+	var newgreencard = ''; //clear card
+
+	//first round
 	if(gameinsession == false) {
 	    gameinsession = true;
+	    //all players start with 7 cards
 	    for (var u = 0; u < users.length; u++) {
-		console.log('dealing hand for '+ users[u].name);
+		debug('dealing hand for '+ users[u].name);
 		for(var c = 0; c < 7; c++) {
 		    newredcard = redcards[redcardstracker];
 		    redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
@@ -110,7 +113,7 @@ io.sockets.on('connection', function (socket) {
 		}
 	    }
 	}
-	else {
+	else { //not first round
 	    io.sockets.emit('cleanupround');
 	}
 
@@ -123,7 +126,7 @@ io.sockets.on('connection', function (socket) {
 	//identify turn
 	for (var u = 0; u < users.length; u++) {
 	    if(users[u].name == users[currentturn].name) {
-		console.log("turn: "+ users[currentturn].name);
+		debug("turn: "+ users[currentturn].name);
 		io.to(users[u].iden).emit('yourturn');
 	    }
 	    else {
@@ -140,7 +143,7 @@ io.sockets.on('connection', function (socket) {
 
     //send card to center
     socket.on('sendcard', function(card) {
-	console.log("sending card");
+	debug("sending card");
 	//store who gave which card
 	rounddata.push({
 	    user:socket.username,
@@ -149,27 +152,28 @@ io.sockets.on('connection', function (socket) {
 
 	io.sockets.emit('sentcardfacedown', card);
 
+	//deal new card to have a total of 7 cards
 	newredcard = redcards[redcardstracker];
 	redcardstracker = (redcardstracker == redcards.length-1) ? 0 : redcardstracker+1;
 	io.to(socket.id).emit('dealred', newredcard);
 
 	if(rounddata.length == users.length-1) { //everyone has submitted
-	    console.log('time to select the winner');
+	    debug('time to select the winner');
 	    io.to(users[currentturn].iden).emit('selectwinner');
 	}
     });
 
     //update the score
     socket.on('updatescore', function(textr, textg) {
-	console.log("updating score " + textr + textg);
+	debug("updating score " + textr + textg);
 	var winner;
 	for(var w = 0; w < rounddata.length; w++) {
 	    if(rounddata[w].card == textr) {
 		winner = rounddata[w].user;
-		console.log('winner',winner);
+		debug('winner',winner);
 		var winnernum = lookup[winner];
 		users[winnernum].score++;
-		var words = users[winnernum].words;
+		var words = users[winnernum].words; //store green card won
 		words.push(textg);
 		users[winnernum].words = words;
 		break;
@@ -188,4 +192,8 @@ io.sockets.on('connection', function (socket) {
 
 //-----------SERVER SIDE FUNCTIONS-------------
 
-
+function debug(text) {
+    if(apple_debugger == true) {
+	console.log(text);
+    }
+}

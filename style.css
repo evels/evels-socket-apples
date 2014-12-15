@@ -63,8 +63,6 @@ label {
     -webkit-transform: rotate(-90deg);
     -moz-transform: rotate(-90deg);
 }
-
-
 .player {
     clear:both;
     overflow:auto;
@@ -218,9 +216,15 @@ input[type="submit"]:active, button:active
     font-size:24px;
 }
 #player-chat-window-data {
-    width:150px
+    width:180px
 }
-
 .game-end {
     margin-top:20px;
+}
+
+.score h2 {
+    margin-bottom:0;
+}
+.score h3 {
+    margin-top:5px;
 }
