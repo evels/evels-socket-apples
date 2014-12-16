@@ -125,6 +125,8 @@ socket.on('updateusers', function(data) {
 	$('#users').append('<div>' + value + '<span></span></div>');
 	users.push(value);
     });
+    if(users.length == 0)
+    $('#users').append("No current players");
     //three players is enough to start the game
     if(Object.keys(data).length > 2) {
 	$('.game-begin').removeClass('hide');

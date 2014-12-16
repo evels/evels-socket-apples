@@ -1,10 +1,12 @@
-socket-apples
-=============
+Sockets and Apples
 
-Apples to Apples
-using socket.io
+Apples to Apples using socket.io
 
 Author: Eveleen Sung
+
+Submitted as final project in CS 651.
+
+December 2014
 
 TO RUN THIS GAME:
 
