@@ -12,6 +12,7 @@ TO RUN THIS GAME:
 
 Install Node.js
 Navigate to this directory
+Run "npm install"
 Run "node app"
 Open localhost:8080 for each player
 
@@ -21,4 +22,4 @@ Each player submits a red card to match the green card.
 When all players have submitted, host player will be able to choose the best match.
 A winner will be determined for each round.
 The score will update automatically.
-All green cards won will be displayed when a user chooses to end the game. 
+All green cards won will be displayed when a user chooses to end the game.
