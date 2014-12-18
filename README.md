@@ -14,6 +14,8 @@ Author: Eveleen Sung
 * Run "node app"
 * Open localhost:8080 for each player
 
+
+##Notes
 * When at least three users have entered their name, the game can begin.
 * Host player is marked with a chip in the left corner above their hand.
 * Each player submits a red card to match the green card.
